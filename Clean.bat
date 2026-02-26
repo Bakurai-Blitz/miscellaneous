@@ -1,58 +1,36 @@
 @echo off
-title C Drive Deep Cleaner
-color 0B
-mode con: cols=70 lines=30
+title Detailed System Cleanup
+echo Starting cleanup... Errors will be displayed for files currently in use.
+echo ---------------------------------------
 
-:: ===== ADMIN CHECK =====
-net session >nul 2>&1
-if %errorLevel% neq 0 (
-    echo.
-    echo   [ ERROR ] Run this file as Administrator.
-    echo.
-    pause
-    exit
-)
-
-cls
+:: Empty Recycle Bin
 echo.
-echo  ##############################################################
-echo  #                                                            #
-echo  #                    C DRIVE CLEANER                         #
-echo  #                                                            #
-echo  ##############################################################
+echo [1/5] Emptying Recycle Bin...
+rd /s /q %systemdrive%\$Recycle.Bin
+
+:: Clear User Temp Files
 echo.
+echo [2/5] Cleaning User Temp files...
+del /s /f /q "%temp%\*.*"
+for /d %%x in ("%temp%\*") do rd /s /q "%%x"
 
-
-echo  [1/6] Cleaning USER Temp...
-del /q /f /s "%TEMP%\*" >nul 2>&1
-
-echo  [2/6] Cleaning WINDOWS Temp...
-del /q /f /s "C:\Windows\Temp\*" >nul 2>&1
-
-echo  [3/6] Cleaning Prefetch...
-del /q /f /s "C:\Windows\Prefetch\*" >nul 2>&1
-
-echo  [4/6] Emptying Recycle Bin...
-rd /s /q C:\$Recycle.Bin >nul 2>&1
-
-echo  [5/6] Cleaning Windows Update Cache...
-net stop wuauserv >nul 2>&1
-net stop bits >nul 2>&1
-del /q /f /s "C:\Windows\SoftwareDistribution\Download\*" >nul 2>&1
-net start wuauserv >nul 2>&1
-net start bits >nul 2>&1
-
-echo  [6/6] Cleaning Component Store...
-Dism.exe /online /Cleanup-Image /StartComponentCleanup >nul 2>&1
-
+:: Clear System Temp Files
 echo.
+echo [3/5] Cleaning System Temp files...
+del /s /f /q "%systemroot%\Temp\*.*"
+for /d %%x in ("%systemroot%\Temp\*") do rd /s /q "%%x"
 
-echo  ##############################################################
-echo  #                 CLEANUP COMPLETE                           #
-echo  ##############################################################
-
-powershell -c "[console]::beep(1000,300);Start-Sleep -m 200;[console]::beep(1200,300)"
-
-
+:: Clear Windows Update Cache
 echo.
+echo [4/5] Cleaning Windows Update Download Cache...
+del /s /f /q "%systemroot%\SoftwareDistribution\Download\*.*"
+for /d %%x in ("%systemroot%\SoftwareDistribution\Download\*") do rd /s /q "%%x"
+
+:: Clear Prefetch (Useless startup cache)
+echo.
+echo [5/5] Cleaning Prefetch...
+del /s /f /q "%systemroot%\Prefetch\*.*"
+
+echo ---------------------------------------
+echo Cleanup Process Finished. Review any "Access Denied" messages above.
 pause
