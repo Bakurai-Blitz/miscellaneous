@@ -1,36 +1,30 @@
 @echo off
-title Detailed System Cleanup
-echo Starting cleanup... Errors will be displayed for files currently in use.
+title Light Cleaner
+color 0A
+
+:: Admin Check
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ ERROR ] Please Right-Click and 'Run as Administrator'
+    pause
+    exit
+)
+
+echo Starting Light Cleanup...
 echo ---------------------------------------
 
-:: Empty Recycle Bin
-echo.
-echo [1/5] Emptying Recycle Bin...
-rd /s /q %systemdrive%\$Recycle.Bin
+:: 1. Empty Recycle Bin
+echo [1/3] Emptying Recycle Bin...
+powershell.exe -NoProfile -Command "Clear-RecycleBin -Confirm:$false -ErrorAction SilentlyContinue"
 
-:: Clear User Temp Files
-echo.
-echo [2/5] Cleaning User Temp files...
-del /s /f /q "%temp%\*.*"
-for /d %%x in ("%temp%\*") do rd /s /q "%%x"
+:: 2. Clean User Temp
+echo [2/3] Cleaning User Temp...
+del /f /s /q "%temp%\*.*"
 
-:: Clear System Temp Files
-echo.
-echo [3/5] Cleaning System Temp files...
-del /s /f /q "%systemroot%\Temp\*.*"
-for /d %%x in ("%systemroot%\Temp\*") do rd /s /q "%%x"
-
-:: Clear Windows Update Cache
-echo.
-echo [4/5] Cleaning Windows Update Download Cache...
-del /s /f /q "%systemroot%\SoftwareDistribution\Download\*.*"
-for /d %%x in ("%systemroot%\SoftwareDistribution\Download\*") do rd /s /q "%%x"
-
-:: Clear Prefetch (Useless startup cache)
-echo.
-echo [5/5] Cleaning Prefetch...
-del /s /f /q "%systemroot%\Prefetch\*.*"
+:: 3. Clean Windows System Temp
+echo [3/3] Cleaning System Temp...
+del /f /s /q "C:\Windows\Temp\*.*"
 
 echo ---------------------------------------
-echo Cleanup Process Finished. Review any "Access Denied" messages above.
+echo Cleanup Finished!
 pause
